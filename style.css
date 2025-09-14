@@ -6,7 +6,21 @@
     --font-color: #333;
     --card-bg-color: #ffffff;
     --shadow-color: rgba(0,0,0,0.1);
+    --input-border-color: #ccc;
 }
+
+/* START: New Code */
+body.dark-mode {
+    --primary-color: #2196F3; /* Primary can often stay the same */
+    --secondary-color: #4CAF50; /* Secondary can often stay the same */
+    --background-color: #121212;
+    --font-color: #e0e0e0;
+    --card-bg-color: #1e1e1e;
+    --shadow-color: rgba(0,0,0,0.4);
+    --input-border-color: #555;
+}
+/* END: New Code */
+
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -18,6 +32,9 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    /* START: New Code */
+    transition: background-color 0.3s, color 0.3s;
+    /* END: New Code */
 }
 
 main {
@@ -36,6 +53,9 @@ section {
     padding: 25px;
     box-shadow: 0 4px 12px var(--shadow-color);
     margin-top: 20px;
+    /* START: New Code */
+    transition: background-color 0.3s;
+    /* END: New Code */
 }
 
 /* --- Typography & Elements --- */
@@ -68,9 +88,15 @@ input[type="number"] {
     padding: 8px;
     margin: 5px 0 15px 0;
     box-sizing: border-box;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border-color); /* Modified */
     border-radius: 4px;
+    /* START: New Code */
+    background-color: var(--background-color);
+    color: var(--font-color);
+    transition: background-color 0.3s, color 0.3s;
+    /* END: New Code */
 }
+
 
 label {
     font-weight: bold;
@@ -188,4 +214,10 @@ header {
 
 .timer-controls button:hover {
     background-color: #388E3C;
+}
+
+#theme-toggle-btn {
+    font-size: 1.5rem; /* Makes the emoji icon larger */
+    line-height: 1;   /* Helps with vertical alignment */
+    padding: 5px 8px; /* Adjust padding for a better look */
 }

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DOM ELEMENT REFERENCES ---
     const navSpinnerBtn = document.getElementById('nav-spinner-btn');
     const navStatsBtn = document.getElementById('nav-stats-btn');
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const spinnerView = document.getElementById('spinner-view');
     const statsView = document.getElementById('stats-view');
     const totalHoursInput = document.getElementById('total-hours');
@@ -33,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let stats = { totalStudyHours: 0, totalGameHours: 0, totalSessionsCompleted: 0 };
     let currentRotation = 0;
     const STATS_KEY = 'probabilisticSpinnerStats';
+    const THEME_KEY = 'probabilisticSpinnerTheme';
     let timerInterval = null;
     let timeRemaining = 3600; // 1 hour in seconds
     let isTimerRunning = false;
@@ -89,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStudyHours: 0,
             sessionGameHours: 0,
             lastSpinResult: null
-            // The 'segments' array has been removed
         };
         
         const gamePercent = probabilityGame * 100;
@@ -100,66 +101,51 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI();
     }
 
-function spinWheel() {
-    if (!sessionState.totalHours || sessionState.currentHour > sessionState.totalHours) return;
-    
-    timerContainer.style.display = 'none';
-    spinBtn.disabled = true;
-
-    // 1. Determine a single random landing angle
-    const landingAngle = Math.random() * 360;
-
-    // 2. Determine the outcome
-    const gameAngleThreshold = sessionState.probabilityGame * 360;
-    const outcome = (landingAngle < gameAngleThreshold) ? 'Game' : 'Study';
-    sessionState.lastSpinResult = outcome;
-
-    // 3. Calculate the rotation for a fresh animation
-    const extraRotations = 5 * 360; 
-    const finalRotation = extraRotations + (360 - landingAngle);
-
-    // Apply the rotation to trigger the animation
-    spinnerWheel.style.transform = `rotate(${finalRotation}deg)`;
-
-    // This timeout must match your CSS transition duration
-    setTimeout(() => {
-        // --- All the existing logic runs first ---
-        if (outcome === 'Game') {
-            sessionState.sessionGameHours++;
-        } else {
-            sessionState.sessionStudyHours++;
-        }
+    function spinWheel() {
+        if (!sessionState.totalHours || sessionState.currentHour > sessionState.totalHours) return;
         
-        timerContainer.style.display = 'block'; 
-        resetTimer();
-        spinBtn.disabled = false;
+        timerContainer.style.display = 'none';
+        spinBtn.disabled = true;
 
-        if (sessionState.currentHour >= sessionState.totalHours) {
-            updateUI();
-            endSession(true);
-        } else {
-            sessionState.currentHour++;
-            updateUI();
-        }
+        const landingAngle = Math.random() * 360;
+        const gameAngleThreshold = sessionState.probabilityGame * 360;
+        const outcome = (landingAngle < gameAngleThreshold) ? 'Game' : 'Study';
+        sessionState.lastSpinResult = outcome;
 
-        // --- NEW CODE TO RESET THE SPINNER FOR THE NEXT SPIN ---
-        // 1. Calculate the final resting angle (e.g., 1950deg becomes 150deg)
-        const newBaseRotation = finalRotation % 360;
+        const extraRotations = 5 * 360; 
+        const finalRotation = extraRotations + (360 - landingAngle);
 
-        // 2. Temporarily disable the transition to snap to the new angle instantly
-        spinnerWheel.style.transition = 'none';
+        spinnerWheel.style.transform = `rotate(${finalRotation}deg)`;
 
-        // 3. Set the transform to the new, simplified rotation value
-        spinnerWheel.style.transform = `rotate(${newBaseRotation}deg)`;
-        
-        // 4. Use a tiny delay to allow the browser to apply the change, then re-enable the transition
-        // so the *next* spin is animated smoothly.
         setTimeout(() => {
-            spinnerWheel.style.transition = 'transform 1s ease-out';
-        }, 50); // 50ms is a safe, small delay
+            if (outcome === 'Game') {
+                sessionState.sessionGameHours++;
+            } else {
+                sessionState.sessionStudyHours++;
+            }
+            
+            timerContainer.style.display = 'block'; 
+            resetTimer();
+            spinBtn.disabled = false;
 
-    }, 1000); // This must match the animation time
-}
+            if (sessionState.currentHour >= sessionState.totalHours) {
+                updateUI();
+                endSession(true);
+            } else {
+                sessionState.currentHour++;
+                updateUI();
+            }
+
+            const newBaseRotation = finalRotation % 360;
+            spinnerWheel.style.transition = 'none';
+            spinnerWheel.style.transform = `rotate(${newBaseRotation}deg)`;
+            
+            setTimeout(() => {
+                spinnerWheel.style.transition = 'transform 1s ease-out';
+            }, 50);
+
+        }, 1000);
+    }
 
     // --- TIMER LOGIC FUNCTIONS ---
     function updateTimerDisplay() {
@@ -199,7 +185,7 @@ function spinWheel() {
     }
 
     function resetTimer() {
-        pauseTimer(); // Stop the timer if it's running
+        pauseTimer();
         timeRemaining = 3600;
         updateTimerDisplay();
     }
@@ -225,6 +211,7 @@ function spinWheel() {
         spinnerView.style.display = 'block';
         statsView.style.display = 'none';
     }
+
     function viewStats() {
         spinnerView.style.display = 'none';
         statsView.style.display = 'block';
@@ -255,12 +242,36 @@ function spinWheel() {
         }
     }
 
+    // --- THEME TOGGLE FUNCTIONS ---
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggleBtn.textContent = '☀️'; // Set icon to sun in dark mode
+        } else {
+            document.body.classList.remove('dark-mode');
+            themeToggleBtn.textContent = '🌙'; // Set icon to moon in light mode
+        }
+    }
+
+    function toggleTheme() {
+        const currentTheme = localStorage.getItem(THEME_KEY);
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(THEME_KEY, newTheme);
+        applyTheme(newTheme);
+    }
+
+    function loadTheme() {
+        const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+        applyTheme(savedTheme);
+    }
+
     // --- EVENT LISTENERS ---
     startBtn.addEventListener('click', startSession);
     spinBtn.addEventListener('click', spinWheel);
     navSpinnerBtn.addEventListener('click', viewSpinner);
     navStatsBtn.addEventListener('click', viewStats);
     resetStatsBtn.addEventListener('click', resetStats);
+    themeToggleBtn.addEventListener('click', toggleTheme);
     endEarlyBtn.addEventListener('click', () => {
         if (sessionState.totalHours) {
             endSession(false);
@@ -272,6 +283,7 @@ function spinWheel() {
 
     // --- INITIALIZATION ---
     loadStats();
+    loadTheme();
     updateUI();
     viewSpinner();
 });
