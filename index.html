@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin to Win</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>Spin to Win</h1>
+            <nav>
+                <button id="nav-spinner-btn">Spinner</button>
+                <button id="nav-stats-btn">Statistics</button>
+            </nav>
+        </header>
+
+        <main>
+            <div id="spinner-view">
+                <section id="setup-section">
+                    <h2>New Session</h2>
+                    <label for="total-hours">Total Session Hours:</label>
+                    <input type="number" id="total-hours" min="1" value="0">
+                    
+                    <label for="game-hours">Desired Game Hours:</label>
+                    <input type="number" id="game-hours" min="0" value="0">
+                    
+                    <button id="start-btn">Start Session</button>
+                </section>
+
+                <section id="spinner-section" style="display: none;">
+                <h2 id="session-progress"></h2>
+                
+                <div class="spinner-container">
+                    <div class="spinner-pointer"></div>
+                    <div id="spinner-wheel"></div>
+                </div>
+
+                <div class="legend-container">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: var(--primary-color);"></span>
+                        <span>Study</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: var(--secondary-color);"></span>
+                        <span>Game</span>
+                    </div>
+                </div>
+                <button id="spin-btn">Spin for this Hour</button>
+                <p>Result: <span id="spin-result">-</span></p>
+
+                <div id="timer-container" style="display: none;">
+                <h4>Activity Timer</h4>
+                <div id="timer-display">01:00:00</div>
+                <div class="timer-controls">
+                    <button id="timer-start-btn">Start</button>
+                    <button id="timer-pause-btn" style="display: none;">Pause</button>
+                    <button id="timer-reset-btn">Reset</button>
+                </div>
+            </div>
+            <div>
+
+                <div>
+                    <h3>Current Session Stats</h3>
+                    <p>Study Hours: <span id="session-study-hours">0</span></p>
+                    <p>Game Hours: <span id="session-game-hours">0</span></p>
+                </div>
+                <button id="end-early-btn">End Session Early</button>
+            </section>
+            </div>
+
+            <div id="stats-view" style="display: none;">
+                <section>
+                    <h2>Lifetime Statistics</h2>
+                    <p>Total Study Hours: <span id="stats-study-hours">0</span></p>
+                    <p>Total Game Hours: <span id="stats-game-hours">0</span></p>
+                    <p>Overall Game Percentage: <span id="stats-game-percentage">0</span></p>
+                    <p>Total Full Sessions: <span id="stats-total-sessions">0</span></p>
+                    <button id="reset-stats-btn">Reset All Statistics</button>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

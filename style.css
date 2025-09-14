@@ -1,0 +1,191 @@
+/* --- General & Layout --- */
+:root {
+    --primary-color: #2196F3;
+    --secondary-color: #4CAF50;
+    --background-color: #f4f4f9;
+    --font-color: #333;
+    --card-bg-color: #ffffff;
+    --shadow-color: rgba(0,0,0,0.1);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--font-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+main {
+    width: 100%;
+    max-width: 450px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+section {
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    margin-top: 20px;
+}
+
+/* --- Typography & Elements --- */
+h1, h2 {
+    color: var(--primary-color);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #1976D2;
+}
+
+button:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0 15px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+label {
+    font-weight: bold;
+}
+
+nav button {
+    background-color: transparent;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* --- Spinner Visuals --- */
+.spinner-container {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    margin: 30px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner-pointer {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 20px solid #db4437; /* A distinct red color */
+    z-index: 10;
+}
+
+#spinner-wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 5px solid #333;
+    box-sizing: border-box;
+    background-image: conic-gradient(var(--primary-color) 0% 50%, var(--secondary-color) 50% 100%);
+    transition: transform 1s ease-out; /* This is the animation magic! */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+main {
+    width: 100%;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%; /* Make header take full width of the container */
+}
+
+/* --- Legend Styles --- */
+.legend-container {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+/* --- Timer Styles --- */
+#timer-container {
+    text-align: center;
+    margin-top: 25px;
+    margin-bottom: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+#timer-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 2.8em;
+    font-weight: bold;
+    color: var(--font-color);
+    margin: 5px 0 15px 0;
+}
+
+.timer-controls button {
+    background-color: var(--secondary-color);
+    margin: 0 5px;
+}
+
+.timer-controls button:hover {
+    background-color: #388E3C;
+}
