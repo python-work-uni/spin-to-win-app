@@ -221,3 +221,25 @@ header {
     line-height: 1;   /* Helps with vertical alignment */
     padding: 5px 8px; /* Adjust padding for a better look */
 }
+
+#history-section {
+    margin-top: 20px;
+}
+
+#stats-history-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 15px;
+    max-height: 250px;
+    overflow-y: auto;
+    border-top: 1px solid var(--input-border-color);
+}
+
+#stats-history-list li {
+    padding: 12px 5px;
+    border-bottom: 1px solid var(--input-border-color);
+}
+
+#stats-history-list li:last-child {
+    border-bottom: none;
+}

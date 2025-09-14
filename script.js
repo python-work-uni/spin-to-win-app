@@ -28,10 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerStartBtn = document.getElementById('timer-start-btn');
     const timerPauseBtn = document.getElementById('timer-pause-btn');
     const timerResetBtn = document.getElementById('timer-reset-btn');
+    const statsHistoryList = document.getElementById('stats-history-list');
 
     // --- APPLICATION STATE ---
     let sessionState = {};
-    let stats = { totalStudyHours: 0, totalGameHours: 0, totalSessionsCompleted: 0 };
+    let stats = { totalStudyHours: 0, totalGameHours: 0, totalSessionsCompleted: 0, sessionHistory: [] };
     let currentRotation = 0;
     const STATS_KEY = 'probabilisticSpinnerStats';
     const THEME_KEY = 'probabilisticSpinnerTheme';
@@ -99,6 +100,26 @@ document.addEventListener('DOMContentLoaded', () => {
         setupSection.style.display = 'none';
         spinnerSection.style.display = 'block';
         updateUI();
+    }
+
+    function displayHistory() {
+        statsHistoryList.innerHTML = ''; // Clear previous entries
+
+        if (!stats.sessionHistory || stats.sessionHistory.length === 0) {
+            const emptyMsg = document.createElement('li');
+            emptyMsg.textContent = 'No completed sessions yet.';
+            emptyMsg.style.fontStyle = 'italic';
+            emptyMsg.style.textAlign = 'center';
+            statsHistoryList.appendChild(emptyMsg);
+            return;
+        }
+
+        // Show most recent sessions first by reversing a copy of the array
+        [...stats.sessionHistory].reverse().forEach(session => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<strong>${session.date}:</strong> Studied ${session.study}h, Gamed ${session.game}h`;
+            statsHistoryList.appendChild(listItem);
+        });
     }
 
     function spinWheel() {
@@ -191,6 +212,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function endSession(isFullSession = false) {
+        const sessionRecord = {
+            date: new Date().toISOString().split('T')[0], // Format as YYYY-MM-DD
+            study: sessionState.sessionStudyHours,
+            game: sessionState.sessionGameHours
+        };
+
+        // Only add the record if at least one hour was completed
+        if (sessionRecord.study > 0 || sessionRecord.game > 0) {
+            stats.sessionHistory.push(sessionRecord);
+        }
+
         alert(`Session Finished!\nStudy: ${sessionState.sessionStudyHours} hours\nGame: ${sessionState.sessionGameHours} hours`);
         stats.totalStudyHours += sessionState.sessionStudyHours;
         stats.totalGameHours += sessionState.sessionGameHours;
@@ -216,6 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
         spinnerView.style.display = 'none';
         statsView.style.display = 'block';
         updateUI();
+        // START: New Code
+        displayHistory();
+        // END: New Code
     }
     
     function loadStats() {
@@ -225,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stats.totalStudyHours = loadedStats.totalStudyHours || 0;
             stats.totalGameHours = loadedStats.totalGameHours || 0;
             stats.totalSessionsCompleted = loadedStats.totalSessionsCompleted || 0;
+            stats.sessionHistory = loadedStats.sessionHistory || [];
         }
     }
 
@@ -236,9 +272,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const isConfirmed = confirm('Are you sure you want to reset all your lifetime statistics? This action cannot be undone.');
         
         if (isConfirmed) {
-            stats = { totalStudyHours: 0, totalGameHours: 0, totalSessionsCompleted: 0 };
+            stats = { totalStudyHours: 0, totalGameHours: 0, totalSessionsCompleted: 0, sessionHistory: [] };
             localStorage.removeItem(STATS_KEY);
             updateUI();
+            displayHistory();
         }
     }
 
