@@ -3,9 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DOM ELEMENT REFERENCES ---
     const navSpinnerBtn = document.getElementById('nav-spinner-btn');
     const navStatsBtn = document.getElementById('nav-stats-btn');
+    const navAthleteBtn = document.getElementById('nav-athlete-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const spinnerView = document.getElementById('spinner-view');
     const statsView = document.getElementById('stats-view');
+    const athleteView = document.getElementById('athlete-view');
     const totalHoursInput = document.getElementById('total-hours');
     const gameHoursInput = document.getElementById('game-hours');
     const startBtn = document.getElementById('start-btn');
@@ -32,7 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- APPLICATION STATE ---
     let sessionState = {};
-    let stats = { totalStudyHours: 0, totalGameHours: 0, totalSessionsCompleted: 0, sessionHistory: [] };
+    let stats = { totalStudyHours: 0, totalGameHours: 0, totalSessionsCompleted: 0, sessionHistory: [], level: 1,
+    currentExp: 0,
+    longestSession: 0,
+    achievements: {} };
     let currentRotation = 0;
     const STATS_KEY = 'probabilisticSpinnerStats';
     const THEME_KEY = 'probabilisticSpinnerTheme';
@@ -62,6 +67,38 @@ document.addEventListener('DOMContentLoaded', () => {
         statsGameHoursText.textContent = stats.totalGameHours;
         statsTotalSessionsText.textContent = stats.totalSessionsCompleted;
         statsGamePercentageText.textContent = `${gamePercentage}%`;
+        updateAthleteView();
+    }
+
+    function updateAthleteView() {
+        // Calculate Rank
+        let rank = "Novice Scholar";
+        if (stats.level >= 20) rank = "Master Mind";
+        else if (stats.level >= 15) rank = "Elite Thinker";
+        else if (stats.level >= 10) rank = "Disciplined Mind";
+        else if (stats.level >= 5) rank = "Adept Learner";
+        document.getElementById('athlete-rank').textContent = rank;
+
+        // Update Level and EXP
+        document.getElementById('athlete-level').textContent = stats.level;
+        const expNeeded = calculateExpForLevel(stats.level);
+        document.getElementById('athlete-current-exp').textContent = stats.currentExp;
+        document.getElementById('athlete-exp-needed').textContent = expNeeded;
+
+        // Update Progress Bar
+        const expPercentage = (stats.currentExp / expNeeded) * 100;
+        document.getElementById('exp-progress-bar').style.width = `${expPercentage}%`;
+        
+        // Update Career Stats (you will need to add more logic for streaks)
+        document.getElementById('athlete-longest-session').textContent = `${stats.longestSession}`;
+
+        // Update Achievements
+        const centurionAchievement = document.getElementById('ach-centurion');
+        if (stats.achievements.centurion) {
+            centurionAchievement.classList.add('unlocked');
+        } else {
+            centurionAchievement.classList.remove('unlocked');
+        }
     }
 
     // --- LOGIC FUNCTIONS ---
@@ -168,6 +205,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
+    const EXP_PER_HOUR = 100;
+
+    function calculateExpForLevel(level) {
+        // Exponential curve for leveling
+        return Math.floor(1000 * Math.pow(level, 1.5));
+    }
+
+    function addExp(studyHours) {
+        const expGained = studyHours * EXP_PER_HOUR;
+        stats.currentExp += expGained;
+        console.log(`Gained ${expGained} EXP!`);
+        checkLevelUp();
+    }
+
+    function checkLevelUp() {
+        let expNeeded = calculateExpForLevel(stats.level);
+        while (stats.currentExp >= expNeeded) {
+            stats.level++;
+            stats.currentExp -= expNeeded;
+            alert(`Congratulations! You've reached Level ${stats.level}!`);
+            expNeeded = calculateExpForLevel(stats.level);
+        }
+    }
+
+    function checkPerformanceMetrics(session) {
+        // 1. Check for the longest single session
+        // It calculates the total hours from the completed session...
+        const totalSessionHours = session.sessionStudyHours + session.sessionGameHours;
+        
+        // ...and if it's a new record, updates the stats.
+        if (totalSessionHours > stats.longestSession) {
+            stats.longestSession = totalSessionHours;
+        }
+
+        // 2. Check for the 'Centurion' achievement
+        // This checks if the lifetime study hours have reached 100 AND
+        // if the achievement hasn't already been unlocked.
+        if (stats.totalStudyHours >= 100 && !stats.achievements.centurion) {
+            stats.achievements.centurion = true; // Mark as unlocked
+            alert('🏆 Achievement Unlocked: Centurion!\n(Logged 100 total study hours.)');
+        }
+        
+        // 3. (Future achievement checks would go here)
+        // For example:
+        // if (session.sessionStudyHours >= 8 && !stats.achievements.marathoner) { ... }
+    }
+
     // --- TIMER LOGIC FUNCTIONS ---
     function updateTimerDisplay() {
         const hours = Math.floor(timeRemaining / 3600);
@@ -212,18 +296,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function endSession(isFullSession = false) {
+        // 1. Create a record of the session's results
         const sessionRecord = {
             date: new Date().toISOString().split('T')[0], // Format as YYYY-MM-DD
             study: sessionState.sessionStudyHours,
             game: sessionState.sessionGameHours
         };
 
-        // Only add the record if at least one hour was completed
+        // 2. Add the record to history only if at least one hour was logged
         if (sessionRecord.study > 0 || sessionRecord.game > 0) {
             stats.sessionHistory.push(sessionRecord);
         }
 
+        // 3. Notify the user of the session outcome
         alert(`Session Finished!\nStudy: ${sessionState.sessionStudyHours} hours\nGame: ${sessionState.sessionGameHours} hours`);
+
+        // 4. Update lifetime statistics
         stats.totalStudyHours += sessionState.sessionStudyHours;
         stats.totalGameHours += sessionState.sessionGameHours;
         
@@ -231,26 +319,48 @@ document.addEventListener('DOMContentLoaded', () => {
             stats.totalSessionsCompleted++;
         }
 
+        // 5. --- NEW ATHLETE LOGIC ---
+        //    Award EXP for study hours and check for level-ups
+        if (sessionState.sessionStudyHours > 0) {
+            addExp(sessionState.sessionStudyHours); 
+        }
+        //    Check for new records (like longest session) and unlock achievements
+        checkPerformanceMetrics(sessionState);
+
+        // 6. Save all updated stats to local storage
         saveStats();
+
+        // 7. Reset the application state and UI for the next session
         sessionState = {};
         timerContainer.style.display = 'none';
         setupSection.style.display = 'block';
         spinnerSection.style.display = 'none';
+        
+        // 8. Refresh the UI to show the latest stats everywhere
         updateUI();
     }
     
     function viewSpinner() {
         spinnerView.style.display = 'block';
         statsView.style.display = 'none';
+        athleteView.style.display = 'none';
     }
 
     function viewStats() {
         spinnerView.style.display = 'none';
         statsView.style.display = 'block';
+        athleteView.style.display = 'none';
         updateUI();
         // START: New Code
         displayHistory();
         // END: New Code
+    }
+
+    function viewAthlete() {
+        spinnerView.style.display = 'none';
+        statsView.style.display = 'none';
+        athleteView.style.display = 'block';
+        updateUI(); 
     }
     
     function loadStats() {
@@ -261,6 +371,10 @@ document.addEventListener('DOMContentLoaded', () => {
             stats.totalGameHours = loadedStats.totalGameHours || 0;
             stats.totalSessionsCompleted = loadedStats.totalSessionsCompleted || 0;
             stats.sessionHistory = loadedStats.sessionHistory || [];
+            stats.level = loadedStats.level || 1;
+            stats.currentExp = loadedStats.currentExp || 0;
+            stats.longestSession = loadedStats.longestSession || 0;
+            stats.achievements = loadedStats.achievements || {};
         }
     }
 
@@ -272,7 +386,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const isConfirmed = confirm('Are you sure you want to reset all your lifetime statistics? This action cannot be undone.');
         
         if (isConfirmed) {
-            stats = { totalStudyHours: 0, totalGameHours: 0, totalSessionsCompleted: 0, sessionHistory: [] };
+            // Update this object to include the new athlete stats
+            stats = { 
+                totalStudyHours: 0, 
+                totalGameHours: 0, 
+                totalSessionsCompleted: 0, 
+                sessionHistory: [],
+                level: 1,
+                currentExp: 0,
+                longestSession: 0,
+                achievements: {} 
+            };
             localStorage.removeItem(STATS_KEY);
             updateUI();
             displayHistory();
@@ -307,6 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     spinBtn.addEventListener('click', spinWheel);
     navSpinnerBtn.addEventListener('click', viewSpinner);
     navStatsBtn.addEventListener('click', viewStats);
+    navAthleteBtn.addEventListener('click', viewAthlete);
     resetStatsBtn.addEventListener('click', resetStats);
     themeToggleBtn.addEventListener('click', toggleTheme);
     endEarlyBtn.addEventListener('click', () => {

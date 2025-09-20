@@ -14,6 +14,7 @@
             <nav>
                 <button id="nav-spinner-btn">Spinner</button>
                 <button id="nav-stats-btn">Statistics</button>
+                <button id="nav-athlete-btn">Athlete</button>
                 <button id="theme-toggle-btn"></button>
             </nav>
         </header>
@@ -88,6 +89,35 @@
                         </ul>
                 </section>
                 </div>
+            
+            <div id="athlete-view" style="display: none;">
+                <section id="profile-section">
+                    <h2>Athlete Profile</h2>
+                    <p>Rank: <span id="athlete-rank">Novice Scholar</span></p>
+                    <h3>Level <span id="athlete-level">1</span></h3>
+                    <div class="progress-bar-container">
+                        <div id="exp-progress-bar" class="progress-bar-fill"></div>
+                    </div>
+                    <p><span id="athlete-current-exp">0</span> / <span id="athlete-exp-needed">1000</span> EXP</p>
+                </section>
+
+                <section>
+                    <h2>Career Stats</h2>
+                    <p>Current Study Streak: <span id="athlete-study-streak">0</span> Days</p>
+                    <p>Longest Session: <span id="athlete-longest-session">0</span> Hours</p>
+                    </section>
+
+                <section>
+                    <h2>Achievements</h2>
+                    <div id="achievements-grid">
+                        <div class="achievement" id="ach-centurion">
+                            <span class="ach-icon">🏆</span>
+                            <span class="ach-title">Centurion</span>
+                            <span class="ach-desc">Log 100 total study hours.</span>
+                        </div>
+                        </div>
+                </section>
+            </div>
         </main>
     </div>
 
